@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Progress, Steps, Tag, Spin  } from "antd";
+import { Table, Button, Modal, Progress, Steps, Tag, Spin, Checkbox, message  } from "antd";
 import "antd/dist/antd.css";
 import { api_base_url } from "../Constants";
 import axios from "axios";
@@ -14,10 +14,12 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
   const [loading,setLoading]=useState(true)
   const [data, setData] = useState([]);
   const [permanent, setPermanent] = useState([]);
+  const [keys, setKeys] = useState([]);
   const [st, setSt] = useState([]);
   const [distance, setDistance] = useState(0);
   const [district, setDistrict] = useState([]);
   const [ct, setCt] = useState([]);
+  const [requester,setRequester]=useState([]);
   const [city, setCity] = useState(
     localStorage.getItem("userDetails") &&
       JSON.parse(localStorage.getItem("userDetails"))
@@ -25,11 +27,13 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
   const [hospitalCity, setHospitalCity] = useState("");
   const bloodType = useSelector((state) => state.donors.bloodType);
   useEffect(() => {
-    console.log(donorsData.length);
+    console.log(donorsData,'test');
+    let temp = [...donorsData]
+    let temp1= temp.map(el=>{return {...el,key:el.id}})
     if (canFetchDonors) {
       setLoading(false)
-      setData(donorsData);
-      setPermanent(donorsData);
+      setData(temp1);
+      setPermanent(temp1);
     
 
     } else {
@@ -39,8 +43,19 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
     }
 
   }, [donorsData]);
+
   const [searchObj, setSearchObj] = useState({});
   const [columns, setColumns] = useState([
+    // {
+    //   title: "",
+    //   dataIndex: "",
+    //   key: "y",
+
+    //   render: (text, record) =>
+    //     localStorage.getItem('token') && (
+    //      <Checkbox />
+    //     ),
+    // },
     {
       title: "Name",
       dataIndex: "name",
@@ -133,6 +148,40 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
           </Button>
         ),
     },
+
+    {
+      title: "Send request",
+      dataIndex: "id",
+      key: "id",
+
+      render: (text, record) => ( 
+      
+        record.status==null?
+          <Button
+          type="danger"
+          onClick={() => {
+           
+            const data = {
+              donor_id: [record.id],
+              requester_id: JSON.parse(localStorage.getItem("userDetails")).id,
+              status: "0",
+            };
+            axios
+              .post(api_base_url + "/addraisedrequest", data).then((res) => {             
+              
+                message.success('request sent')
+              }).catch(err=>{
+               
+                message.error('something went wrong')
+              });          
+          }}
+          style={{ marginLeft: "10px" }}
+        >
+          Request
+        </Button>: record.status?.status=="0"?"Requested":"Accepted"
+      ),
+    },
+
   ]);
   const getDistance = (record) => {
     fetch(
@@ -358,6 +407,38 @@ console.log("search");
     searchObj.blood_type = e.target.value;
     setSearchObj({ ...searchObj, blood_type: e.target.value });
   };
+  // rowSelection object indicates the need for row selection
+const rowSelection = {
+  onChange: (selectedRowKeys, selectedRows) => {
+    setKeys(selectedRowKeys)
+    console.log( 'selectedRows: ', selectedRows);
+    console.log('selectedKeys',selectedRowKeys);
+  },
+  getCheckboxProps: (record) => ({
+    disabled: record.name === 'Disabled User', // Column configuration not to be checked
+    name: record.name,
+  }),
+};
+useEffect(() => {
+  GetRequesterData()   
+}, []);
+const GetRequesterData = () => {
+  if (localStorage.getItem("token") == null) window.location.hash = "home";
+  else {
+    axios
+      .get(`${api_base_url}/raisedlist`)
+      .then((res) => {
+        const response = res.data;
+        const temp1 = response.filter((el) => {
+          return el.email != JSON.parse(localStorage.getItem("userDetails")).email && el.donor_id == JSON.parse(localStorage.getItem("userDetails")).id;
+        });
+        setRequester(temp1);
+      });
+  }
+}
+console.log('gulshan',requester)
+
+
   return (
     <section
       id="donors"
@@ -375,7 +456,7 @@ console.log("search");
           <div class="heading-area" style={{paddingBottom:"12px"}}>
             <p style={{paddingBottom:"12px"}}><Tag color="magenta" style={{border:"none",fontSize:"38px"}}> Donor's Data</Tag></p>
             <p><Tag color="red" style={{fontSize:"15px"}}> Omniscient BloodBank</Tag></p>
-  
+            
           </div>
           <div className="p-4 " style={{ display: "flex" ,backgroundColor: ' #b7243a',width:'105%',marginLeft:'-2%',borderRadius:'4px'}}>
             <div>
@@ -492,13 +573,36 @@ console.log("search");
                 {" "}
                 Search
               </Button>
-              <Button
+              {/* <Button
                 style={{ marginTop: "20px", marginLeft: "20px" }}
                 type="danger"
                 onClick={()=>navigate("/requestblood")}
               >
                 {" "}
                 Request donar
+              </Button> */}
+             <Button
+                style={{ marginTop: "20px", marginLeft: "20px" }}
+                type="danger"
+                onClick={() => {
+                  const data = {
+                    donor_id: keys,
+                    requester_id: JSON.parse(localStorage.getItem("userDetails")).id,
+                    status: "0",
+                  };
+                  axios
+                    .post(api_base_url + "/addraisedrequest", data).then((res) => {             
+              
+                      message.success('All requests are sent')
+                    }).catch(err=>{
+                     
+                      message.error('something went wrong')
+                    });          
+                    
+                }}
+              >
+                {" "}
+                Send Selected
               </Button>
             </div>
           </div>
@@ -510,7 +614,11 @@ console.log("search");
               <Step title={localStorage.getItem("city")} />
             </Steps>
             <br></br> */}
-          <Table className="table-striped-rows" dataSource={data} columns={columns} style={{overflow:'scroll'}}  />;
+          <Table  rowSelection={{
+          type: 'checkbox',
+          ...rowSelection,
+        }}
+         className="table-striped-rows" dataSource={data} columns={columns} style={{overflow:'scroll'}}  />;
         </div>
       </div>
       </Spin>
