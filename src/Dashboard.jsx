@@ -60,6 +60,7 @@ const { Header, Sider, Content } = Layout;
     setCollapsed(value);
   };
   return (
+  // ( JSON.parse( localStorage.getItem('userDetails')).role!='admin' || localStorage.getItem('token')==undefined) &&
     <>
       <Header className="dash_header" style={{ padding: 0 }}>
         <div

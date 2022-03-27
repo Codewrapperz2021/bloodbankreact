@@ -20,7 +20,7 @@ export const loginHandler =async (email, password) => {
         localStorage.setItem("userDetails", JSON.stringify(res.data.loginData));
         localStorage.setItem("token", res.data.loginData.token);
         res.data.loginData.role !== "admin"
-        ? console.log("")
+        ?  (window.location.pathname = "/profile")
         : (window.location.pathname = "/admin/users");
       
       } else if (res.data.status == "failure") {

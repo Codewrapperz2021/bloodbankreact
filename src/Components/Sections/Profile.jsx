@@ -6,11 +6,15 @@ import { getAllRequestByUser } from "../../redux/actions/request";
 import axios from "axios";
 import Footer from "../Admin/layout/Footer";
 import { api_base_url } from "../../Constants";
+import jsPDF from "jspdf";
 // import "../style.css";
 export default function Profile() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [vis, setVis] = useState(false);
   const [requester, setRequester] = useState([]);
+  const [feedback, setFeedback] = useState('');
+  
   const columns = [
     {
       title: "Name",
@@ -110,7 +114,13 @@ export default function Profile() {
           style={{ marginLeft: "10px" }}
         >
          Accept
-        </Button>:"Accepted"
+        </Button>:record.status=="2"? <Button
+          type="danger"
+          onClick={() => setVis(true)}
+          style={{ marginLeft: "10px" }}
+        >
+         Feedback
+        </Button>: "Accepted"
       ),
     },
   ]);
@@ -174,7 +184,26 @@ export default function Profile() {
     await logout();
     setLoading(false);
   };
+  const addFeedback=()=>{
+    let id=  JSON.parse(localStorage.getItem('userDetails')).id
+    const data ={ description:feedback,user_id:id}
+    axios.post(api_base_url+'/addfeedback',data).then(res=>{
+      var doc = new jsPDF();
+      doc.text(20, 20, 'Hello '+JSON.parse(localStorage.getItem('userDetails')).name);
+      doc.text(20, 30, 'This is regarding the donation you have made recently.');
+      doc.text(20, 40, 'We thank you for your efforts,');
+      doc.text(20, 50, 'Thank you');
+ 
+      
+      doc.save('Certificate.pdf');
 
+  
+
+
+      message.success('Feedback posted');
+      setVis(false)
+    }).catch(err=>{message.error('Something Went Wrong')})
+      }
   if (localStorage.getItem("token") == null) return <></>;
   return (
     <>
@@ -185,6 +214,33 @@ export default function Profile() {
         className="my_section"
         style={{}}
       >
+          <Modal
+        title="Feedback form"
+        visible={vis}
+         onOk={addFeedback}
+        onCancel={() => setVis(false)}
+      >
+        <form
+          class="contact-form"
+          id="contact-form-data"
+          onSubmit={addFeedback
+          }
+        >
+          <div class="col-12" id="feedbakc"></div>
+          <div class="form-group">
+            <input
+              class="form-control"
+              type="text"
+              placeholder="feedback"
+              name="feedback"
+              // value={details?.email}
+              onChange={(e) => {
+                setFeedback(e.target.value);
+              }}
+            />
+          </div>
+        </form>
+      </Modal>
         <Spin spinning={loading} size="large">
           <div style={{}} class="container">
             <div class="container mt-5">

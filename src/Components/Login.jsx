@@ -16,8 +16,6 @@ export default function Login() {
     setLoading(true)
     await loginHandler(email, pass)
     setLoading(false)
-    navigate("/profile")
-    window.location.reload()
    
   };
   const handleEmailChange = (e) => {

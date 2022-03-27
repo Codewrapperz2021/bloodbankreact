@@ -220,6 +220,32 @@ function Sidenav({ color }) {
             <span className="label">Request</span>
           </NavLink>
         </Menu.Item>
+        <Menu.Item key="5">
+          <NavLink to="/admin/raisedrequests">
+            <span
+              className="icon"
+              // style={{
+              //   background: page === "request" ? color : "",
+              // }}
+            >
+              {rtl}
+            </span>
+            <span className="label">Raised Request</span>
+          </NavLink>
+        </Menu.Item>
+        <Menu.Item key="6">
+          <NavLink to="/admin/feedback">
+            <span
+              className="icon"
+              // style={{
+              //   background: page === "request" ? color : "",
+              // }}
+            >
+              {rtl}
+            </span>
+            <span className="label">Feedback</span>
+          </NavLink>
+        </Menu.Item>
       </Menu>
       {/* <div className="aside-footer"> */}
       {/* <div

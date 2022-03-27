@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, Modal, Progress, Steps, Tag, Spin, Checkbox, message  } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Progress,
+  Steps,
+  Tag,
+  Spin,
+  Checkbox,
+  message,
+} from "antd";
 import "antd/dist/antd.css";
 import { api_base_url } from "../Constants";
 import axios from "axios";
@@ -10,8 +20,8 @@ import { updateDonorsData } from "../redux/actions/donors";
 import { Navigate, useNavigate } from "react-router-dom";
 const { Step } = Steps;
 export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
-  const navigate=useNavigate();
-  const [loading,setLoading]=useState(true)
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [permanent, setPermanent] = useState([]);
   const [keys, setKeys] = useState([]);
@@ -19,7 +29,9 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
   const [distance, setDistance] = useState(0);
   const [district, setDistrict] = useState([]);
   const [ct, setCt] = useState([]);
-  const [requester,setRequester]=useState([]);
+  const [requester, setRequester] = useState([]);
+  const [feedback, setFeedback] = useState('');
+  const [visible, setVisible] = useState(false);
   const [city, setCity] = useState(
     localStorage.getItem("userDetails") &&
       JSON.parse(localStorage.getItem("userDetails"))
@@ -27,21 +39,18 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
   const [hospitalCity, setHospitalCity] = useState("");
   const bloodType = useSelector((state) => state.donors.bloodType);
   useEffect(() => {
-    console.log(donorsData,'test');
-    let temp = [...donorsData]
-    let temp1= temp.map(el=>{return {...el,key:el.id}})
+    console.log(donorsData, "test");
+    let temp = [...donorsData];
+    let temp1 = temp.map((el) => {
+      return { ...el, key: el.id };
+    });
     if (canFetchDonors) {
-      setLoading(false)
+      setLoading(false);
       setData(temp1);
       setPermanent(temp1);
-    
-
     } else {
       updateDonorsData();
-    
-
     }
-
   }, [donorsData]);
 
   const [searchObj, setSearchObj] = useState({});
@@ -154,34 +163,57 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
       dataIndex: "id",
       key: "id",
 
-      render: (text, record) => ( 
-      
-        record.status==null?
+      render: (text, record) =>
+        record.status == null ? (
           <Button
-          type="danger"
-          onClick={() => {
-           
-            const data = {
-              donor_id: [record.id],
-              requester_id: JSON.parse(localStorage.getItem("userDetails")).id,
-              status: "0",
-            };
-            axios
-              .post(api_base_url + "/addraisedrequest", data).then((res) => {             
-              
-                message.success('request sent')
-              }).catch(err=>{
-               
-                message.error('something went wrong')
-              });          
-          }}
-          style={{ marginLeft: "10px" }}
-        >
-          Request
-        </Button>: record.status?.status=="0"?"Requested":"Accepted"
-      ),
+            type="danger"
+            onClick={() => {
+              const data = {
+                donor_id: [record.id],
+                requester_id: JSON.parse(localStorage.getItem("userDetails"))
+                  .id,
+                status: "0",
+              };
+              axios
+                .post(api_base_url + "/addraisedrequest", data)
+                .then((res) => {
+                  message.success("request sent");
+                })
+                .catch((err) => {
+                  message.error("something went wrong");
+                });
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            Request
+          </Button>
+        ) : record.status?.status == "0" ? (
+          "Requested"
+        ) : record.status?.status == "1" ? (
+          <Button
+            type="danger"
+            onClick={() => {
+              const data = {
+                id: record.id,
+                status: "2",
+              };
+              axios
+                .post(api_base_url + "/updateraisedrequest", data)
+                .then((res) => {
+                  GetRequesterData();
+                  message.success("Thank you");
+                });
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            Click If Donated
+          </Button>
+        ) : (
+          <Button type="danger" onClick={() => setVisible(true)}>
+            Feedback
+          </Button>
+        ),
     },
-
   ]);
   const getDistance = (record) => {
     fetch(
@@ -230,7 +262,7 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
           el.blood_type == searchObj.blood_type
         );
       });
-console.log("search");
+      console.log("search");
       setData(temp1);
     } else if (
       searchObj.hasOwnProperty("state") &&
@@ -408,36 +440,43 @@ console.log("search");
     setSearchObj({ ...searchObj, blood_type: e.target.value });
   };
   // rowSelection object indicates the need for row selection
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    setKeys(selectedRowKeys)
-    console.log( 'selectedRows: ', selectedRows);
-    console.log('selectedKeys',selectedRowKeys);
-  },
-  getCheckboxProps: (record) => ({
-    disabled: record.name === 'Disabled User', // Column configuration not to be checked
-    name: record.name,
-  }),
-};
-useEffect(() => {
-  GetRequesterData()   
-}, []);
-const GetRequesterData = () => {
-  if (localStorage.getItem("token") == null) window.location.hash = "home";
-  else {
-    axios
-      .get(`${api_base_url}/raisedlist`)
-      .then((res) => {
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      setKeys(selectedRowKeys);
+      console.log("selectedRows: ", selectedRows);
+      console.log("selectedKeys", selectedRowKeys);
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === "Disabled User", // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
+  useEffect(() => {
+    GetRequesterData();
+  }, []);
+  const GetRequesterData = () => {
+    if (localStorage.getItem("token") == null) window.location.hash = "home";
+    else {
+      axios.get(`${api_base_url}/raisedlist`).then((res) => {
         const response = res.data;
         const temp1 = response.filter((el) => {
-          return el.email != JSON.parse(localStorage.getItem("userDetails")).email && el.donor_id == JSON.parse(localStorage.getItem("userDetails")).id;
+          return (
+            el.email != JSON.parse(localStorage.getItem("userDetails")).email &&
+            el.donor_id == JSON.parse(localStorage.getItem("userDetails")).id
+          );
         });
         setRequester(temp1);
       });
+    }
+  };
+  const addFeedback=()=>{
+let id=  JSON.parse(localStorage.getItem('userDetails')).id
+const data ={ description:feedback,user_id:id}
+axios.post(api_base_url+'/addfeedback',data).then(res=>{
+  message.success('Feedback posted');
+  setVisible(false)
+}).catch(err=>{message.error('Something Went Wrong')})
   }
-}
-console.log('gulshan',requester)
-
 
   return (
     <section
@@ -445,135 +484,195 @@ console.log('gulshan',requester)
       // class="pt-page pt-page-6 pt-5"
       className="my_section"
       data-id="donors"
-      style={{
-     
-      }}
+      style={{}}
     >
-      <Spin size="large" spinning={loading}>
-      <div class="container mt-4" id="content">
-        <div class=" align-items-lg-center dot-box">
-          {/* <div class="col-6"> */}
-          <div class="heading-area" style={{paddingBottom:"12px"}}>
-            <p style={{paddingBottom:"12px"}}><Tag color="magenta" style={{border:"none",fontSize:"38px"}}> Donor's Data</Tag></p>
-            <p><Tag color="red" style={{fontSize:"15px"}}> Omniscient BloodBank</Tag></p>
-            
+      <Modal
+        title="Feedback form"
+        visible={visible}
+         onOk={addFeedback}
+        onCancel={() => setVisible(false)}
+      >
+        <form
+          class="contact-form"
+          id="contact-form-data"
+          onSubmit={addFeedback
+          }
+        >
+          <div class="col-12" id="feedbakc"></div>
+          <div class="form-group">
+            <input
+              class="form-control"
+              type="text"
+              placeholder="feedback"
+              name="feedback"
+              // value={details?.email}
+              onChange={(e) => {
+                setFeedback(e.target.value);
+              }}
+            />
           </div>
-          <div className="p-4 " style={{ display: "flex" ,backgroundColor: ' #b7243a',width:'105%',marginLeft:'-2%',borderRadius:'4px'}}>
-            <div>
-              <div style={{color:'white'}}>Select State</div>
-              <select
-                class="form-control"
-                name="st"
-                onChange={(e) => {
-                  handleStateChange(e);
-                  handleStateFilter(e);
-                }}
-                // value={localStorage.getItem("state")}
-              >
-                 {localStorage.getItem("state") && (
-                  <option selected disabled>
-                    {localStorage.getItem("state")}
-                  </option>
-                )}
-                <option>All</option>;
-                {st.map((stt) => {
-                  return (
-                    <option value={stt.state_id} name={stt.state_id + "state"}>
-                      {stt.state_title}
+        </form>
+      </Modal>
+      <Spin size="large" spinning={loading}>
+        <div class="container mt-4" id="content">
+          <div class=" align-items-lg-center dot-box">
+            {/* <div class="col-6"> */}
+            <div class="heading-area" style={{ paddingBottom: "12px" }}>
+              <p style={{ paddingBottom: "12px" }}>
+                <Tag
+                  color="magenta"
+                  style={{ border: "none", fontSize: "38px" }}
+                >
+                  {" "}
+                  Donor's Data
+                </Tag>
+              </p>
+              <p>
+                <Tag color="red" style={{ fontSize: "15px" }}>
+                  {" "}
+                  Omniscient BloodBank
+                </Tag>
+              </p>
+            </div>
+            <div
+              className="p-4 "
+              style={{
+                display: "flex",
+                backgroundColor: " #b7243a",
+                width: "105%",
+                marginLeft: "-2%",
+                borderRadius: "4px",
+              }}
+            >
+              <div>
+                <div style={{ color: "white" }}>Select State</div>
+                <select
+                  class="form-control"
+                  name="st"
+                  onChange={(e) => {
+                    handleStateChange(e);
+                    handleStateFilter(e);
+                  }}
+                  // value={localStorage.getItem("state")}
+                >
+                  {localStorage.getItem("state") && (
+                    <option selected disabled>
+                      {localStorage.getItem("state")}
                     </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div style={{marginTop:'3%',marginLeft:'2%',color:'white'}}>
-            <i class="lni lni-angle-double-right"></i>
-            </div>
-            <div style={{ marginLeft: "20px", marginRight: "20px" }}>
-              <div style={{color:'white'}}>Select District</div>
-              <select
-                class="form-control"
-                name="District"
-                onChange={(e) => {
-                  handleDistrictChange(e);
-                  handleDistrictFilter(e);
-                }}
+                  )}
+                  <option>All</option>;
+                  {st.map((stt) => {
+                    return (
+                      <option
+                        value={stt.state_id}
+                        name={stt.state_id + "state"}
+                      >
+                        {stt.state_title}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div
+                style={{ marginTop: "3%", marginLeft: "2%", color: "white" }}
               >
-                {localStorage.getItem("district") && (
-                  <option selected disabled>
-                    {localStorage.getItem("district")}
-                  </option>
-                )}
-                <option>All</option>;
-                {district.map((dt) => {
-                  return (
-                    <option
-                      name={dt.districtid + "district"}
-                      value={dt.districtid}
-                    >
-                      {dt.district_title}
+                <i class="lni lni-angle-double-right"></i>
+              </div>
+              <div style={{ marginLeft: "20px", marginRight: "20px" }}>
+                <div style={{ color: "white" }}>Select District</div>
+                <select
+                  class="form-control"
+                  name="District"
+                  onChange={(e) => {
+                    handleDistrictChange(e);
+                    handleDistrictFilter(e);
+                  }}
+                >
+                  {localStorage.getItem("district") && (
+                    <option selected disabled>
+                      {localStorage.getItem("district")}
                     </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div style={{marginTop:'3%',marginLeft:'1%',marginRight:'1%',color:'white'}}>
-            <i class="lni lni-angle-double-right"></i>
-            </div>
-            <div>
-              <div style={{color:'white'}}>Select City</div>
-              <select
-                class="form-control"
-                name="city"
-                onChange={(e) => {
-                  handleCityFilter(e);
+                  )}
+                  <option>All</option>;
+                  {district.map((dt) => {
+                    return (
+                      <option
+                        name={dt.districtid + "district"}
+                        value={dt.districtid}
+                      >
+                        {dt.district_title}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div
+                style={{
+                  marginTop: "3%",
+                  marginLeft: "1%",
+                  marginRight: "1%",
+                  color: "white",
                 }}
               >
-                {" "}
-                {localStorage.getItem("city") && (
-                  <option selected disabled>
-                    {localStorage.getItem("city")}
-                  </option>
-                )}
-                <option>All</option>;
-                {ct.map((ctt) => {
-                  return (
-                    <option name={ctt.id + "city"} value={ctt.id}>
-                      {ctt.name}
+                <i class="lni lni-angle-double-right"></i>
+              </div>
+              <div>
+                <div style={{ color: "white" }}>Select City</div>
+                <select
+                  class="form-control"
+                  name="city"
+                  onChange={(e) => {
+                    handleCityFilter(e);
+                  }}
+                >
+                  {" "}
+                  {localStorage.getItem("city") && (
+                    <option selected disabled>
+                      {localStorage.getItem("city")}
                     </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div style={{marginTop:'3%',marginLeft:'2%',color:'white'}}>
-            <i class="lni lni-angle-double-right"></i>
-            </div>
-            <div style={{ marginLeft: "20px" }}>
-              <div style={{color:'white'}}>Select Blood Type</div>
-              <select
-                class="form-control"
-                name="blood_type"
-                onChange={(e) => {
-                  handleBloodFilter(e);
-                }}
-                value={localStorage.getItem("blood_type")}
+                  )}
+                  <option>All</option>;
+                  {ct.map((ctt) => {
+                    return (
+                      <option name={ctt.id + "city"} value={ctt.id}>
+                        {ctt.name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div
+                style={{ marginTop: "3%", marginLeft: "2%", color: "white" }}
               >
-                <option>All</option>;
-                {bloodType.map((st) => {
-                  return <option>{st}</option>;
-                })}
-              </select>
-            </div>
-            <div>
-              <div></div>{" "}
-              <Button
-                style={{ marginTop: "20px", marginLeft: "20px" }}
-                type="danger"
-                onClick={search}
-              >
-                {" "}
-                Search
-              </Button>
-              {/* <Button
+                <i class="lni lni-angle-double-right"></i>
+              </div>
+              <div style={{ marginLeft: "20px" }}>
+                <div style={{ color: "white" }}>Select Blood Type</div>
+                <select
+                  class="form-control"
+                  name="blood_type"
+                  onChange={(e) => {
+                    handleBloodFilter(e);
+                  }}
+                  value={localStorage.getItem("blood_type")}
+                >
+                  <option>All</option>;
+                  {bloodType.map((st) => {
+                    return <option>{st}</option>;
+                  })}
+                </select>
+              </div>
+              <div>
+                <div></div>{" "}
+                <Button
+                  style={{ marginTop: "20px", marginLeft: "20px" }}
+                  type="danger"
+                  onClick={search}
+                >
+                  {" "}
+                  Search
+                </Button>
+                {/* <Button
                 style={{ marginTop: "20px", marginLeft: "20px" }}
                 type="danger"
                 onClick={()=>navigate("/requestblood")}
@@ -581,46 +680,53 @@ console.log('gulshan',requester)
                 {" "}
                 Request donar
               </Button> */}
-             <Button
-                style={{ marginTop: "20px", marginLeft: "20px" }}
-                type="danger"
-                onClick={() => {
-                  const data = {
-                    donor_id: keys,
-                    requester_id: JSON.parse(localStorage.getItem("userDetails")).id,
-                    status: "0",
-                  };
-                  axios
-                    .post(api_base_url + "/addraisedrequest", data).then((res) => {             
-              
-                      message.success('All requests are sent')
-                    }).catch(err=>{
-                     
-                      message.error('something went wrong')
-                    });          
-                    
-                }}
-              >
-                {" "}
-                Send Selected
-              </Button>
+                <Button
+                  style={{ marginTop: "20px", marginLeft: "20px" }}
+                  type="danger"
+                  onClick={() => {
+                    const data = {
+                      donor_id: keys,
+                      requester_id: JSON.parse(
+                        localStorage.getItem("userDetails")
+                      ).id,
+                      status: "0",
+                    };
+                    axios
+                      .post(api_base_url + "/addraisedrequest", data)
+                      .then((res) => {
+                        message.success("All requests are sent");
+                      })
+                      .catch((err) => {
+                        message.error("something went wrong");
+                      });
+                  }}
+                >
+                  {" "}
+                  Send Selected
+                </Button>
+              </div>
             </div>
-          </div>
-          <br></br>
-          {/* <Steps  size="small" current={4}>
+            <br></br>
+            {/* <Steps  size="small" current={4}>
               <Step title={localStorage.getItem("blood_type")} />
               <Step  title={localStorage.getItem("state")} />
               <Step title={localStorage.getItem("district")} />
               <Step title={localStorage.getItem("city")} />
             </Steps>
             <br></br> */}
-          <Table  rowSelection={{
-          type: 'checkbox',
-          ...rowSelection,
-        }}
-         className="table-striped-rows" dataSource={data} columns={columns} style={{overflow:'scroll'}}  />;
+            <Table
+              rowSelection={{
+                type: "checkbox",
+                ...rowSelection,
+              }}
+              className="table-striped-rows"
+              dataSource={data}
+              columns={columns}
+              style={{ overflow: "scroll" }}
+            />
+            ;
+          </div>
         </div>
-      </div>
       </Spin>
       <Modal
         title="Distance"
