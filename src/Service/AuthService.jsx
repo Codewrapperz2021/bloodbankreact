@@ -39,7 +39,7 @@ export const logout =async () => {
       // }
       message.info("Logged Out Successfully");
       
-      window.location="/login"
+      window.location="/"
       // window.location.hash = "home";
       // window.location.reload();
       localStorage.clear();

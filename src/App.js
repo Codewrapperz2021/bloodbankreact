@@ -17,19 +17,18 @@ function App() {
   return (
     <BrowserRouter>
           <Routes>
-        <Route path="/admin">
-          <Route exact path="users" element={<User />} />
-          <Route exact path="feeds" element={<Feed />} />
-          <Route exact path="notifications" element={<Notification />} />
-          <Route exact path="requests" element={<Requests />} />
-          <Route exact path="raisedrequests" element={<Raisedrequest />} />
-          <Route exact path="feedback" element={<Feedback />} />
-        </Route>
+        <Route path= "/*" element={localStorage.getItem('userDetails')!=null ? JSON.parse(localStorage.getItem("userDetails")).role !='admin' ?<Dashboard/>:<User />:<Dashboard/>} />
+       
+          <Route exact path="admin/users" element={<User />} />
+          <Route exact path="admin/feeds" element={<Feed />} />
+          <Route exact path="admin/notifications" element={<Notification />} />
+          <Route exact path="admin/requests" element={<Requests />} />
+          <Route exact path="admin/raisedrequests" element={<Raisedrequest />} />
+          <Route exact path="admin/feedback" element={<Feedback />} />
+       
       </Routes>
-
-      <Routes>
-        <Route path="/*" element={<Dashboard/>} />
-      </Routes>
+     
+     
     </BrowserRouter>
   );
 }

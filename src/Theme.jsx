@@ -97,7 +97,7 @@ headers: {
             {localStorage.getItem("token") == null ?<> <Login /><Register /></>:<><Profile /><Profile/></>}
           </div>
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>   
       <div
         style={{

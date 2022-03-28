@@ -13,8 +13,8 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [vis, setVis] = useState(false);
   const [requester, setRequester] = useState([]);
-  const [feedback, setFeedback] = useState('');
-  
+  const [feedback, setFeedback] = useState("");
+
   const columns = [
     {
       title: "Name",
@@ -99,29 +99,37 @@ export default function Profile() {
       dataIndex: "id",
       key: "id",
 
-      render: (text, record) => (
-        record.status=="0"?
-        <Button
-          type="danger"
-          onClick={() => {
-            const data = {
-              id: record.id,
-              status: "1",
-            };
-            axios
-              .post(api_base_url + "/updateraisedrequest", data).then(res=>{GetRequesterData();message.success('request accpeted')})
-          }}
-          style={{ marginLeft: "10px" }}
-        >
-         Accept
-        </Button>:record.status=="2"? <Button
-          type="danger"
-          onClick={() => setVis(true)}
-          style={{ marginLeft: "10px" }}
-        >
-         Feedback
-        </Button>: "Accepted"
-      ),
+      render: (text, record) =>
+        record.status == "0" ? (
+          <Button
+            type="danger"
+            onClick={() => {
+              const data = {
+                id: record.id,
+                status: "1",
+              };
+              axios
+                .post(api_base_url + "/updateraisedrequest", data)
+                .then((res) => {
+                  GetRequesterData();
+                  message.success("request accpeted");
+                });
+            }}
+            style={{ marginLeft: "10px" }}
+          >
+            Accept
+          </Button>
+        ) : record.status == "2" ? (
+          <Button
+            type="danger"
+            onClick={() => setVis(true)}
+            style={{ marginLeft: "10px" }}
+          >
+            Feedback
+          </Button>
+        ) : (
+          "Accepted"
+        ),
     },
   ]);
 
@@ -145,7 +153,7 @@ export default function Profile() {
     }
   }, []);
   useEffect(() => {
-    GetRequesterData()   
+    GetRequesterData();
   }, []);
   const GetRequesterData = () => {
     if (localStorage.getItem("token") == null) window.location.hash = "home";
@@ -156,15 +164,19 @@ export default function Profile() {
         })
         .then((res) => {
           const response = res.data;
-          console.log('rse',response)
+          console.log("rse", response);
           const temp1 = response.filter((el) => {
-            return el.email != JSON.parse(localStorage.getItem("userDetails")).email && el.donor_id == JSON.parse(localStorage.getItem("userDetails")).id;
+            return (
+              el.email !=
+                JSON.parse(localStorage.getItem("userDetails")).email &&
+              el.donor_id == JSON.parse(localStorage.getItem("userDetails")).id
+            );
           });
           setRequester(temp1);
         });
     }
-  }
-  
+  };
+
   const handleDetails = (e) => {
     let object = {};
     object[e.target.name] = e.target.value;
@@ -184,26 +196,33 @@ export default function Profile() {
     await logout();
     setLoading(false);
   };
-  const addFeedback=()=>{
-    let id=  JSON.parse(localStorage.getItem('userDetails')).id
-    const data ={ description:feedback,user_id:id}
-    axios.post(api_base_url+'/addfeedback',data).then(res=>{
-      var doc = new jsPDF();
-      doc.text(20, 20, 'Hello '+JSON.parse(localStorage.getItem('userDetails')).name);
-      doc.text(20, 30, 'This is regarding the donation you have made recently.');
-      doc.text(20, 40, 'We thank you for your efforts,');
-      doc.text(20, 50, 'Thank you');
- 
-      
-      doc.save('Certificate.pdf');
-
-  
-
-
-      message.success('Feedback posted');
-      setVis(false)
-    }).catch(err=>{message.error('Something Went Wrong')})
-      }
+  const addFeedback = () => {
+    let id = JSON.parse(localStorage.getItem("userDetails")).id;
+    const data = { description: feedback, user_id: id };
+    axios
+      .post(api_base_url + "/addfeedback", data)
+      .then((res) => {
+        var doc = new jsPDF();
+        doc.text(
+          20,
+          20,
+          "Hello " + JSON.parse(localStorage.getItem("userDetails")).name
+        );
+        doc.text(
+          20,
+          30,
+          "This is regarding the donation you have made recently."
+        );
+        doc.text(20, 40, "We thank you for your efforts,");
+        doc.text(20, 50, "Thank you");
+        doc.save("Certificate.pdf");
+        message.success("Feedback posted");
+        setVis(false);
+      })
+      .catch((err) => {
+        message.error("Something Went Wrong");
+      });
+  };
   if (localStorage.getItem("token") == null) return <></>;
   return (
     <>
@@ -214,33 +233,32 @@ export default function Profile() {
         className="my_section"
         style={{}}
       >
-          <Modal
-        title="Feedback form"
-        visible={vis}
-         onOk={addFeedback}
-        onCancel={() => setVis(false)}
-      >
-        <form
-          class="contact-form"
-          id="contact-form-data"
-          onSubmit={addFeedback
-          }
+        <Modal
+          title="Feedback form"
+          visible={vis}
+          onOk={addFeedback}
+          onCancel={() => setVis(false)}
         >
-          <div class="col-12" id="feedbakc"></div>
-          <div class="form-group">
-            <input
-              class="form-control"
-              type="text"
-              placeholder="feedback"
-              name="feedback"
-              // value={details?.email}
-              onChange={(e) => {
-                setFeedback(e.target.value);
-              }}
-            />
-          </div>
-        </form>
-      </Modal>
+          <form
+            class="contact-form"
+            id="contact-form-data"
+            onSubmit={addFeedback}
+          >
+            <div class="col-12" id="feedbakc"></div>
+            <div class="form-group">
+              <input
+                class="form-control"
+                type="text"
+                placeholder="feedback"
+                name="feedback"
+                // value={details?.email}
+                onChange={(e) => {
+                  setFeedback(e.target.value);
+                }}
+              />
+            </div>
+          </form>
+        </Modal>
         <Spin spinning={loading} size="large">
           <div style={{}} class="container">
             <div class="container mt-5">
