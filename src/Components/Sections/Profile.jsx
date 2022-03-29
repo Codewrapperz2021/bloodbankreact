@@ -120,16 +120,27 @@ export default function Profile() {
             Accept
           </Button>
         ) : record.status == "2" ? (
-          <Button
-            type="danger"
-            onClick={() => setVis(true)}
-            style={{ marginLeft: "10px" }}
-          >
-            Feedback
-          </Button>
-        ) : (
-          "Accepted"
-        ),
+          // <Button
+          //   type="danger"
+          //   onClick={() => setVis(true)}
+          //   style={{ marginLeft: "10px" }}
+          // >
+          //   Feedback
+          // </Button>
+          "Donated"
+        ) :''
+    },
+    {
+      title: "Feedback",
+      dataIndex: "id",
+      key: "id",
+      render: (text, record) =>
+      record.status == "2" ?  (
+        <Button type="danger" onClick={() => setVis(true)}>
+        Feedback
+      </Button>
+      ):''
+
     },
   ]);
 
@@ -513,7 +524,7 @@ export default function Profile() {
                         color="magenta"
                         style={{ border: "none", fontSize: "38px" }}
                       >
-                        Donor Request
+                        Donation Request
                       </Tag>
                     </h5>
 
