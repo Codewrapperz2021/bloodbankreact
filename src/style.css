@@ -180,8 +180,10 @@ display: none;
 }
 
 .ant-table-thead>tr>th {
-  background-color: #fcfcfd;
-  color: #5e7c99;
+  background-color: #fcfcfd !important;
+  color: #5e7c99 !important;
+  font-family: lato !important;
+  font-weight: 900 !important;
 }
 
 .table-striped-rows tr{

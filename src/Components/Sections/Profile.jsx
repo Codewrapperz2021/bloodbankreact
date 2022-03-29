@@ -690,6 +690,7 @@ export default function Profile() {
                   </Spin>
                 </Modal>
                 <Table
+               className="table-striped-rows" 
                   dataSource={requester}
                   columns={columnss}
                   scroll={{ x: 400 }}

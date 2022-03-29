@@ -157,7 +157,6 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
           </Button>
         ),
     },
-
     {
       title: "Send request",
       dataIndex: "id",
@@ -209,10 +208,22 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
             Click If Donated
           </Button>
         ) : (
-          <Button type="danger" onClick={() => setVisible(true)}>
-            Feedback
-          </Button>
+          // <Button type="danger" onClick={() => setVisible(true)}>
+          //   Feedback
+          // </Button>
+          "Donated"
         ),
+    },
+    {
+      title: "Feedback",
+      dataIndex: "id",
+      key: "id",
+      render: (text, record) =>
+      record.status?.status == "2" ?  (
+        <Button type="danger" onClick={() => setVisible(true)}>
+        Feedback
+      </Button>
+      ):''
     },
   ]);
   const getDistance = (record) => {
