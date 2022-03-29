@@ -11,7 +11,7 @@
 */
 
 // import { useState } from "react";
-import { Menu, Button } from "antd";
+import { Menu, Button, Tag } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
 import logo from "../../../assets/images/logo.png";
 
@@ -164,7 +164,7 @@ function Sidenav({ color }) {
     <>
       <div className="brand">
         <img src={logo} alt="" />
-        <span>BloodBank Dashboard</span>
+        <Tag color="red" style={{border:"none",fontSize:"13px",fontFamily:"poppins"}}>BloodBank Dashboard</Tag>
       </div>
       <hr />
       <Menu theme="light" mode="inline">
@@ -181,7 +181,7 @@ function Sidenav({ color }) {
             <span  className="label">Users</span>
           </NavLink>
         </Menu.Item>
-        <Menu.Item key="2">
+        {/* <Menu.Item key="2">
           <NavLink to="/admin/feeds">
             <span
               className="icon"
@@ -206,7 +206,7 @@ function Sidenav({ color }) {
             </span>
             <span className="label">Notification</span>
           </NavLink>
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item key="4">
           <NavLink to="/admin/requests">
             <span
