@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "antd": "^4.18.3",
     "axios": "^0.25.0",
+    "file-saver": "^2.0.5",
     "jspdf": "^2.5.1",
     "jspdf-react": "^1.0.11",
     "react": "^17.0.2",
@@ -49,5 +50,8 @@
   "devDependencies": {
     "less": "^4.1.2",
     "less-loader": "^10.2.0"
+  },
+  "resolutions": {
+    "jspdf/file-saver": "github:eligrey/FileSaver.js#e865e37af9f9947ddcced76b549e27dc45c1cb2e"
   }
 }
