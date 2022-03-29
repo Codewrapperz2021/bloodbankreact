@@ -211,7 +211,7 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
           // <Button type="danger" onClick={() => setVisible(true)}>
           //   Feedback
           // </Button>
-          "Recived"
+          "Received"
         ),
     },
     {
