@@ -99,7 +99,7 @@ export const Feed = ({ feeds }) => {
           onChange={(e) => handleDetails(e)}
         />
       </Modal>
-      <Table dataSource={data} columns={columns} scroll={{ x: 400 }} />;
+      <Table className="table-striped-rows admin-table" dataSource={data} columns={columns} style={{overflow:"scroll"}} />;
     </Main>
   );
 };

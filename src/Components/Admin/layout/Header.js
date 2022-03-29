@@ -250,14 +250,16 @@ function Header({
   };
   return (
     <>
-      <Row gutter={[24, 0]}>
+      <Row gutter={[24, 0]} style={{background:"linear-gradient(to right, rgba(255,0,0,0), rgba(229,229,230,1))",padding:"12px"}}>
         <Col span={24} md={6}>
           <div className="ant-page-header-heading">
             <span
               className="ant-page-header-heading-title"
-              style={{ textTransform: "capitalize" }}
+              style={{ textTransform: "capitalize",fontFamily:"lato",color:"gray" }}
             >
               {subName}
+              {/* <Tag color="magenta" style={{border:"none"}}>{subName}</Tag> */}
+
             </span>
           </div>
         </Col>

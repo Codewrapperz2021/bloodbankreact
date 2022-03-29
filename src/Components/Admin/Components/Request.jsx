@@ -145,21 +145,21 @@ setData(origralData)
   };
   return (
     <Main>
-      <Row style={{marginLeft:'22px'}}>
+      {/* <Row style={{marginLeft:'22px',padding:"12px"}}>
         <Col span={24} md={2} className="header-control">
           <Button type="primary" onClick={() => setVisible(true)}>
             Add New Request
           </Button>
           </Col>
-          <Col  className="header-control">
+          {/* <Col  className="header-control">
           <Input
             className="header-search"
             placeholder="Search..."
             onChange={(e) => onSearch(e.target.value)}
             prefix={<SearchOutlined />}
           />
-        </Col>
-      </Row>
+        </Col> 
+      </Row> */}
       <Modal
         title="Add New Request"
         visible={visible}
@@ -340,7 +340,7 @@ setData(origralData)
         </form>
       </Modal>
       
-      <Table dataSource={data} columns={columns} scroll={{ x: 400 }} />;
+      <Table className="table-striped-rows admin-table" dataSource={data} columns={columns} style={{ overflow: "scroll" }} />;
     </Main>
   );
 };

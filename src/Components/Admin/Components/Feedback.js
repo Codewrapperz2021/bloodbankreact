@@ -44,9 +44,10 @@ export default function Feedback() {
                 </Col>
             </Row> */}
             <Table
+            className='table-striped-rows admin-table'
                 dataSource={feedback}
                 columns={columnss}
-                scroll={{ x: 400 }}
+                style={{overflow:"scroll" }}
             />
         </Main>
     )

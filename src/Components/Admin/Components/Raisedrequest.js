@@ -60,7 +60,7 @@ export default function () {
 
     return (
         <Main>
-            <Row style={{ marginLeft: '22px' }}>
+            {/* <Row style={{ marginLeft: '22px' }}>
                 <Col className="header-control">
                     <Input
                         className="header-search"
@@ -69,11 +69,12 @@ export default function () {
                         prefix={<SearchOutlined />}
                     />
                 </Col>
-            </Row>
+            </Row> */}
             <Table
+            className='table-striped-rows admin-table'
                 dataSource={requester}
                 columns={columnss}
-                scroll={{ x: 400 }}
+                style={{ overflow: "scroll" }}
             />
         </Main>
     )

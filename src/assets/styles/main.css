@@ -2231,9 +2231,21 @@ button.ant-btn.bell strong {
   padding: 0;
 }
 
-.layout-dashboard .ant-layout-content {
+/* .layout-dashboard .ant-layout-content {
   padding: 0;
   margin: 0 20px 0;
+} */
+
+.layout-dashboard .ant-layout-content {
+  padding-right: 5%;
+  /* margin: 0 20px 0; */
+}
+/* .content-ant .ant-layout-content{
+  padding: 15% !important;
+} */
+.admin-table{
+  box-shadow: 10px 10px 10px lightgray;
+
 }
 .m-10,
 .mr-10,
