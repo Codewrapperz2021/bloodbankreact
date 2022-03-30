@@ -104,6 +104,7 @@ export default function Profile() {
           <Button
             type="danger"
             onClick={() => {
+          
               const data = {
                 id: record.id,
                 status: "1",
@@ -119,7 +120,7 @@ export default function Profile() {
           >
             Accept
           </Button>
-        ) : record.status == "2" ? (
+        ) : record.status == "1" ? (
           // <Button
           //   type="danger"
           //   onClick={() => setVis(true)}
@@ -127,8 +128,8 @@ export default function Profile() {
           // >
           //   Feedback
           // </Button>
-          "Donated"
-        ) :''
+          "Accepted"
+        ) :'Donated'
     },
     {
       title: "Feedback",
@@ -139,7 +140,9 @@ export default function Profile() {
         <Button type="danger" onClick={() => setVis(true)}>
         Feedback
       </Button>
-      ):''
+      ):(<Button type="danger">
+      Feedback
+    </Button>)
 
     },
   ]);
