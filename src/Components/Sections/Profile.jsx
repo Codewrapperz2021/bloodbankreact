@@ -368,7 +368,6 @@ export default function Profile() {
                           Logout
                         </button>{" "}
                       </div>
-//                       <a onClick={() => setForgetvis(true)}>forget password</a>
                     </div>
                   </div>
                 </div>
