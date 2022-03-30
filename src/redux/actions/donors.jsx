@@ -5,12 +5,22 @@ import { message } from "antd";
 export const updateDonorsData = (payload) => {
   return async (dispatch) => {
     try {
-      let { data } = await axios.post(`${api_base_url}/findDonors`, payload);
-      data.status == "success" &&
-        dispatch({
-          type: UPDATE_DONORS_DATA,
-          payload: data.donorsData,
-        });
+      if(localStorage.getItem('token')){
+        let { data } = await axios.post(`${api_base_url}/findDonors`, payload);
+        data.status == "success" &&
+          dispatch({
+            type: UPDATE_DONORS_DATA,
+            payload: data.donorsData,
+          });
+      }else{
+        let { data } = await axios.post(`${api_base_url}/findDonorss`, payload);
+        data.status == "success" &&
+          dispatch({
+            type: UPDATE_DONORS_DATA,
+            payload: data.donorsData,
+          });
+      }
+  
     } catch (error) {
       console.log("error", error);
     }

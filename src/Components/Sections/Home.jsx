@@ -78,15 +78,15 @@ import { useNavigate } from "react-router-dom";
   };
   
   const searchDonors = async () => {
-    if(localStorage.getItem("token") !== null ){
+    // if(localStorage.getItem("token") !== null ){
     setLoading(true)
     await updateDonorsData(searchParameters);
     setLoading(false)
     navigate("/alldonors")
-  }else{
-    message.info('Please login to search donar',3)
-    navigate("/login")
-  }
+  // }else{
+  //   message.info('Please login to search donar',3)
+  //   navigate("/login")
+  // }
   } 
 
   useEffect(() => {

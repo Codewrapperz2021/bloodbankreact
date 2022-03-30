@@ -94,13 +94,12 @@ const { Header, Sider, Content } = Layout;
               </Link>
             </p>
             <p>
-            {localStorage.getItem("token") !== null ?<Link to="/alldonors">
+           
+           <Link to="/alldonors">
               <Tag className="my_tag" color="red">
                 All Donors
               </Tag>
-              </Link>:  <Tag onClick={()=>{message.error('Please Login')}}className="my_tag" color="red">
-                All Donors
-              </Tag>}
+              </Link>
             </p>
             
             {localStorage.getItem("token") == null ? 

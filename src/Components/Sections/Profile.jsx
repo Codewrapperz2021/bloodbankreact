@@ -116,7 +116,7 @@ export default function Profile() {
               axios
                 .post(api_base_url + "/updateraisedrequest", data)
                 .then((res) => {
-                  GetRequesterData();
+                  window.location.reload();
                   message.success("request accpeted");
                 });
             }}

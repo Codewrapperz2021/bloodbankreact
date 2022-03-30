@@ -30,7 +30,7 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
   const [district, setDistrict] = useState([]);
   const [ct, setCt] = useState([]);
   const [requester, setRequester] = useState([]);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState("");
   const [visible, setVisible] = useState(false);
   const [city, setCity] = useState(
     localStorage.getItem("userDetails") &&
@@ -40,19 +40,21 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
   const bloodType = useSelector((state) => state.donors.bloodType);
   useEffect(() => {
     console.log(donorsData, "test");
+    fetchData();
+  }, [donorsData]);
+  const fetchData = async () => {
     let temp = [...donorsData];
     let temp1 = temp.map((el) => {
       return { ...el, key: el.id };
     });
     if (canFetchDonors) {
-      setLoading(false);
       setData(temp1);
       setPermanent(temp1);
     } else {
-      updateDonorsData();
+      await updateDonorsData();
     }
-  }, [donorsData]);
-
+    setLoading(false);
+  };
   const [searchObj, setSearchObj] = useState({});
   const [columns, setColumns] = useState([
     // {
@@ -157,34 +159,35 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
           </Button>
         ),
     },
+
     {
       title: "Send request",
       dataIndex: "id",
       key: "id",
-      
+
       render: (text, record) =>
-     
         record.status == null ? (
           <Button
             type="danger"
             onClick={() => {
               const data = {
-                donor_id: [record.id],
+                donor_id: [record?.id],
                 requester_id: JSON.parse(localStorage.getItem("userDetails"))
-                  .id,
+                  ?.id,
                 status: "0",
               };
-              axios
-                .post(api_base_url + "/addraisedrequest", data)
-                .then((res) => {
-                  message.success("request sent");
-                  
-                })
-                .catch((err) => {
-                  message.error("something went wrong");
-                });
+              localStorage.getItem("token")
+                ? axios
+                    .post(api_base_url + "/addraisedrequest", data)
+                    .then((res) => {
+                     window.location.reload();
+                      message.success("request sent");
+                    })
+                    .catch((err) => {
+                      message.error("something went wrong");
+                    })
+                : message.error("Please Login");
             }}
-            
             style={{ marginLeft: "10px" }}
           >
             Request
@@ -192,48 +195,62 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
         ) : record.status?.status == "0" ? (
           "Requested"
         ) : record.status?.status == "1" ? (
-         
           <Button
             type="danger"
             onClick={() => {
-
               const data = {
-                donor_id: record.id,
-                requester_id:JSON.parse(localStorage.getItem("userDetails")).id,
-                
-                // requester_id: JSON.parse(localStorage.getItem("userDetails")).id, 
+                donor_id: record?.id,
+                requester_id: JSON.parse(localStorage.getItem("userDetails"))
+                  ?.id,
+
+                // requester_id: JSON.parse(localStorage.getItem("userDetails")).id,
                 status: "2",
               };
-              axios
-                .post(api_base_url + "/updateraisedrequest2", data)
-                .then((res) => {
-                  GetRequesterData();
-                  message.success("Thank you");
-                });
+              localStorage.getItem("token")
+                ? axios
+                    .post(api_base_url + "/updateraisedrequest2", data)
+                    .then((res) => {
+                      window.location.reload();
+                      message.success("Thank you");
+                    })
+                : message.error("Please Login");
             }}
             style={{ marginLeft: "10px" }}
           >
             Click If Donated
           </Button>
-        ) :record.status?.status == "2" ?(
-          // <Button type="danger" onClick={() => setVisible(true)}>
-          //   Feedback
-          // </Button>
+        ) : record.status?.status == "2" ? (
           "Received"
-        ):'',
+        ) : (
+          ""
+        ),
     },
     {
       title: "Feedback",
       dataIndex: "id",
       key: "id",
       render: (text, record) =>
-      record.status?.status == "2" ?  (
-        <Button type="danger" onClick={() => setVisible(true)}>
-        Feedback
-      </Button>
-      ):(<Button type="danger">
-      Feedback
-    </Button>)
+        record.status?.status == "2" ? (
+          <Button
+            type="danger"
+            onClick={() =>
+              localStorage.getItem("token")
+                ? setVisible(true)
+                : message.error("Please Login")
+            }
+          >
+            Feedback
+          </Button>
+        ) : (
+          <Button
+            onClick={() =>
+              !localStorage.getItem("token") && message.error("Please Login")
+            }
+            type="danger"
+          >
+            Feedback
+          </Button>
+        ),
     },
   ]);
   const getDistance = (record) => {
@@ -476,28 +493,33 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
     GetRequesterData();
   }, []);
   const GetRequesterData = () => {
-    if (localStorage.getItem("token") == null) window.location.hash = "home";
-    else {
-      axios.get(`${api_base_url}/raisedlist`).then((res) => {
-        const response = res.data;
-        const temp1 = response.filter((el) => {
-          return (
-            el.email != JSON.parse(localStorage.getItem("userDetails")).email &&
-            el.donor_id == JSON.parse(localStorage.getItem("userDetails")).id
-          );
-        });
-        setRequester(temp1);
+    // if (localStorage.getItem("token") == null) window.location.hash = "home";
+    // else {
+    axios.get(`${api_base_url}/raisedlist`).then((res) => {
+      const response = res.data;
+      const temp1 = response.filter((el) => {
+        return (
+          el.email != JSON.parse(localStorage.getItem("userDetails")).email &&
+          el.donor_id == JSON.parse(localStorage.getItem("userDetails"))?.id
+        );
       });
-    }
+      setRequester(temp1);
+    });
   };
-  const addFeedback=()=>{
-let id=  JSON.parse(localStorage.getItem('userDetails')).id
-const data ={ description:feedback,user_id:id}
-axios.post(api_base_url+'/addfeedback',data).then(res=>{
-  message.success('Feedback posted');
-  setVisible(false)
-}).catch(err=>{message.error('Something Went Wrong')})
-  }
+  // };
+  const addFeedback = () => {
+    let id = JSON.parse(localStorage.getItem("userDetails"))?.id;
+    const data = { description: feedback, user_id: id };
+    axios
+      .post(api_base_url + "/addfeedback", data)
+      .then((res) => {
+        message.success("Feedback posted");
+        setVisible(false);
+      })
+      .catch((err) => {
+        message.error("Something Went Wrong");
+      });
+  };
 
   return (
     <section
@@ -510,14 +532,13 @@ axios.post(api_base_url+'/addfeedback',data).then(res=>{
       <Modal
         title="Feedback form"
         visible={visible}
-         onOk={addFeedback}
+        onOk={addFeedback}
         onCancel={() => setVisible(false)}
       >
         <form
           class="contact-form"
           id="contact-form-data"
-          onSubmit={addFeedback
-          }
+          onSubmit={addFeedback}
         >
           <div class="col-12" id="feedbakc"></div>
           <div class="form-group">
@@ -709,7 +730,7 @@ axios.post(api_base_url+'/addfeedback',data).then(res=>{
                       donor_id: keys,
                       requester_id: JSON.parse(
                         localStorage.getItem("userDetails")
-                      ).id,
+                      )?.id,
                       status: "0",
                     };
                     axios
