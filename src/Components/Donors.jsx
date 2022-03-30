@@ -161,8 +161,9 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
       title: "Send request",
       dataIndex: "id",
       key: "id",
-
+      
       render: (text, record) =>
+     
         record.status == null ? (
           <Button
             type="danger"
@@ -177,11 +178,13 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
                 .post(api_base_url + "/addraisedrequest", data)
                 .then((res) => {
                   message.success("request sent");
+                  
                 })
                 .catch((err) => {
                   message.error("something went wrong");
                 });
             }}
+            
             style={{ marginLeft: "10px" }}
           >
             Request
@@ -189,15 +192,20 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
         ) : record.status?.status == "0" ? (
           "Requested"
         ) : record.status?.status == "1" ? (
+         
           <Button
             type="danger"
             onClick={() => {
+
               const data = {
-                id: record.id,
+                donor_id: record.id,
+                requester_id:JSON.parse(localStorage.getItem("userDetails")).id,
+                
+                // requester_id: JSON.parse(localStorage.getItem("userDetails")).id, 
                 status: "2",
               };
               axios
-                .post(api_base_url + "/updateraisedrequest", data)
+                .post(api_base_url + "/updateraisedrequest2", data)
                 .then((res) => {
                   GetRequesterData();
                   message.success("Thank you");
@@ -207,12 +215,12 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
           >
             Click If Donated
           </Button>
-        ) : (
+        ) :record.status?.status == "2" ?(
           // <Button type="danger" onClick={() => setVisible(true)}>
           //   Feedback
           // </Button>
           "Received"
-        ),
+        ):'',
     },
     {
       title: "Feedback",
@@ -223,7 +231,9 @@ export const Donors = ({ donorsData, updateDonorsData, canFetchDonors }) => {
         <Button type="danger" onClick={() => setVisible(true)}>
         Feedback
       </Button>
-      ):''
+      ):(<Button type="danger">
+      Feedback
+    </Button>)
     },
   ]);
   const getDistance = (record) => {

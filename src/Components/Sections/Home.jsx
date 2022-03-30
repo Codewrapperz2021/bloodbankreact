@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import blood from "./bloodlogo.jpg";
 import { api_base_url } from "../../Constants";
 import axios from "axios";
-import { Carousel, Spin } from "antd";
+import { Carousel, message, Spin } from "antd";
 import { updateDonorsData } from "../../redux/actions/donors";
 import {
   getBloodType,
@@ -76,14 +76,19 @@ import { useNavigate } from "react-router-dom";
       })
       .then((res) => setCt(res.data));
   };
-
+  
   const searchDonors = async () => {
+    if(localStorage.getItem("token") !== null ){
     setLoading(true)
     await updateDonorsData(searchParameters);
     setLoading(false)
-    // window.location = "/alldonors";
     navigate("/alldonors")
-  };
+  }else{
+    message.info('Please login to search donar',3)
+    navigate("/login")
+  }
+  } 
+
   useEffect(() => {
     axios.post(api_base_url + "/getAllStates").then((res) => {
       const st = res.data;
@@ -238,11 +243,12 @@ import { useNavigate } from "react-router-dom";
               </div>
               <br />
               <a
+              
                 onClick={() => searchDonors()}
                 data-animation="61"
                 data-goto="11"
                 style={{ color: "white" }}
-                id="submit_btn"
+                // id="submit_btn"
                 class="btn btn-large btn-rounded btn-green d-block mt-4 contact_btn"
               >
                 <i

@@ -12,8 +12,13 @@ export default function Profile() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [vis, setVis] = useState(false);
+  const [forgetvis, setForgetvis] = useState(false);
   const [requester, setRequester] = useState([]);
   const [feedback, setFeedback] = useState("");
+  const [number, setNumber] = useState("");
+  const [sendotp, setSendotp] = useState("");
+  const [otp, setOtp] = useState("");
+  const [Pass, setPass] = useState("");
 
   const columns = [
     {
@@ -119,7 +124,7 @@ export default function Profile() {
           >
             Accept
           </Button>
-        ) : record.status == "2" ? (
+        ) : record.status == "1" ? (
           // <Button
           //   type="danger"
           //   onClick={() => setVis(true)}
@@ -127,20 +132,23 @@ export default function Profile() {
           // >
           //   Feedback
           // </Button>
+          "Accepted"
+        ) : (
           "Donated"
-        ) :''
+        ),
     },
     {
       title: "Feedback",
       dataIndex: "id",
       key: "id",
       render: (text, record) =>
-      record.status == "2" ?  (
-        <Button type="danger" onClick={() => setVis(true)}>
-        Feedback
-      </Button>
-      ):''
-
+        record.status == "2" ? (
+          <Button type="danger" onClick={() => setVis(true)}>
+            Feedback
+          </Button>
+        ) : (
+          <Button type="danger">Feedback</Button>
+        ),
     },
   ]);
 
@@ -235,6 +243,28 @@ export default function Profile() {
       });
   };
   if (localStorage.getItem("token") == null) return <></>;
+
+  function sentotp() {
+    const num = {
+      phone: number,
+    };
+    axios.post(api_base_url + "/resetpasswordotp", num).then((res) => {
+      setSendotp(res.data.otp)    
+      message.success("otp sent to your phone");
+    });
+  }
+  function forgetpass(){
+    const data={
+      phone:number,
+      password:Pass
+    }
+    {otp == sendotp ?
+    axios.post(api_base_url + "/resetpassowrd", data).then((res) => {  
+      message.success("Password changed");
+    })
+    :message.error('please enter correct otp');
+  } 
+  }
   return (
     <>
       <section
@@ -244,6 +274,32 @@ export default function Profile() {
         className="my_section"
         style={{}}
       >
+        <Modal
+          title="Feedback form"
+          visible={vis}
+          onOk={addFeedback}
+          onCancel={() => setVis(false)}
+        >
+          <form
+            class="contact-form"
+            id="contact-form-data"
+            onSubmit={addFeedback}
+          >
+            <div class="col-12" id="feedbakc"></div>
+            <div class="form-group">
+              <input
+                class="form-control"
+                type="text"
+                placeholder="feedback"
+                name="feedback"
+                // value={details?.email}
+                onChange={(e) => {
+                  setFeedback(e.target.value);
+                }}
+              />
+            </div>
+          </form>
+        </Modal>
         <Modal
           title="Feedback form"
           visible={vis}
@@ -312,6 +368,7 @@ export default function Profile() {
                           Logout
                         </button>{" "}
                       </div>
+                      <a onClick={() => setForgetvis(true)}>forget password</a>
                     </div>
                   </div>
                 </div>
@@ -539,169 +596,73 @@ export default function Profile() {
                   <br />
                 </div>
                 <Modal
-                  title="Edit Profile"
-                  visible={visible}
-                  onOk={(e) => update(e)}
-                  onCancel={() => setVisible(false)}
+                  title="Forget Password"
+                  visible={forgetvis}
+                  onOk={(e) => forgetpass(e)}
+                  onCancel={() => setForgetvis(false)}
                 >
-                  <Spin spinning={loading} size="large">
-                    <form
-                      class="contact-form"
-                      id="contact-form-data"
-                      onSubmit={(e) => {
-                        update(e);
-                      }}
-                    >
-                      <div class="row">
-                        <div class="col-sm-12" id="result"></div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <input
-                              class="form-control"
-                              type="text"
-                              placeholder="Full Name"
-                              name="name"
-                              value={details?.name}
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <input
-                              class="form-control"
-                              type="email"
-                              placeholder="Email"
-                              name="email"
-                              value={details?.email}
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            />
-                          </div>
+                  {/* <Spin spinning={loading} size="large"> */}
+                  <form
+                    class="contact-form"
+                    id="contact-form-data"
+                    onSubmit={(e) => {
+                      forgetpass(e);
+                    }}
+                  >
+                    <div class="col-lg-12 row">
+                      <div class="col-lg-8">
+                        <div class="form-group">
+                          <input
+                            class="form-control"
+                            type="number"
+                            placeholder="Phone"
+                            name="phone "
+                            onChange={(e) => {
+                              setNumber(e.target.value);
+                            }}
+                          />
                         </div>
                       </div>
-                      <div class="row">
-                        <div class="col-lg-6">
-                          <div class="form-group">
-                            <input
-                              class="form-control"
-                              type="number"
-                              placeholder="Phone"
-                              name="phone"
-                              value={details?.phone}
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        <div class="col-sm-3">
-                          <div class="form-group">
-                            <input
-                              class="form-control"
-                              type="number"
-                              placeholder="Age"
-                              value={details?.age}
-                              name="age"
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div class="col-sm-3">
-                          <div class="form-group">
-                            <select
-                              class="form-control"
-                              placeholder="Gender"
-                              defaultValue={details?.gender}
-                              name="gender"
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            >
-                              <option value="male">Male</option>
-                              <option value="female">Female</option>
-                            </select>
-                          </div>
-                        </div>
+                      <div class="col-lg-4">
+                        <Button
+                        onClick={sentotp}
+                          style={{ background: "#ed2d34", color: "white" }}
+                        >
+                          sent otp
+                        </Button>
                       </div>
+                    </div>
+                    <div class="col-sm-12">
                       <div class="form-group">
-                        <div class="row">
-                          <div class="col-lg-9">
-                            <input
-                              class="form-control"
-                              name="address"
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                              value={details?.address}
-                              placeholder="address"
-                            ></input>
-                          </div>
-                          <div class="col-sm-3">
-                            <input
-                              class="form-control"
-                              name="blood_type"
-                              value={details?.blood_type}
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            />
-                          </div>
-                        </div>
+                        <input
+                          class="form-control"
+                          type="text"
+                          placeholder="Otp"
+                          name="otp"
+                          onChange={(e) => {
+                            setOtp(e.target.value);
+                          }}
+                        />
                       </div>
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <div class="form-group">
-                            <input
-                              class="form-control"
-                              type="text"
-                              placeholder="City"
-                              name="city"
-                              value={details?.city}
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div class="col-sm-6">
-                          <div class="form-group">
-                            <input
-                              class="form-control"
-                              type=""
-                              placeholder="State"
-                              value={details?.state}
-                              name="state"
-                              onChange={(e) => {
-                                handleDetails(e);
-                              }}
-                            />
-                          </div>
-                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                      <div class="form-group">
+                        <input
+                          class="form-control"
+                          type="text"
+                          placeholder="Password"
+                          name="Password"
+                          onChange={(e) => {
+                            setPass(e.target.value);
+                          }}
+                        />
                       </div>
-
-                      {/* <div class="form-group">
-                <input
-                  class="form-control"
-                  type="password"
-                  placeholder="Password"
-                  name="password"
-                  onChange={(e) => {
-                    handleDetails(e);
-                  }}
-                />
-              </div> */}
-                    </form>
-                  </Spin>
+                    </div>
+                  </form>
+                  {/* </Spin> */}
                 </Modal>
                 <Table
-               className="table-striped-rows" 
+                  className="table-striped-rows"
                   dataSource={requester}
                   columns={columnss}
                   scroll={{ x: 400 }}
